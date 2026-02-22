@@ -94,23 +94,24 @@ class ProductSerializer(serializers.ModelSerializer):
     
     def validate_barcode(self, value):
         """
-        Validate barcode
+        Validate barcode - convert empty strings to None
         """
-        if value:
-            # Check for duplicate barcodes
-            queryset = Product.objects.filter(barcode=value.strip())
-            if self.instance:  # Update case - exclude current instance
-                queryset = queryset.exclude(pk=self.instance.pk)
-            
-            if queryset.exists():
-                raise serializers.ValidationError("A product with this barcode already exists.")
-            
-            if len(value.strip()) > 50:
-                raise serializers.ValidationError("Barcode cannot exceed 50 characters.")
-            
-            return value.strip()
+        # Convert empty string or whitespace-only string to None
+        if not value or (isinstance(value, str) and not value.strip()):
+            return None
         
-        return value
+        # Check for duplicate barcodes
+        queryset = Product.objects.filter(barcode=value.strip())
+        if self.instance:  # Update case - exclude current instance
+            queryset = queryset.exclude(pk=self.instance.pk)
+        
+        if queryset.exists():
+            raise serializers.ValidationError("A product with this barcode already exists.")
+        
+        if len(value.strip()) > 50:
+            raise serializers.ValidationError("Barcode cannot exceed 50 characters.")
+        
+        return value.strip()
     
     def validate_description(self, value):
         """
