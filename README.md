@@ -16,8 +16,7 @@ sales-analysis/
 │   ├── apps/        # Django apps
 │   └── ml_module/    # ML prediction module
 ├── frontend/         # React frontend
-├── docs/             # Documentation
-└── docker-compose.yml
+└── docs/             # Documentation
 ```
 
 ## Features
@@ -32,7 +31,8 @@ sales-analysis/
 
 ## Setup
 
-See [docs/SETUP.md](docs/SETUP.md) for detailed setup instructions.
+- **Windows Users**: See [WINDOWS_SETUP.md](WINDOWS_SETUP.md) for step-by-step Windows setup guide
+- **All Platforms**: See [docs/SETUP.md](docs/SETUP.md) for detailed setup instructions
 
 ## Development
 

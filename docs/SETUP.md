@@ -2,6 +2,31 @@
 
 Complete setup instructions for the Supermarket Sales Analysis System.
 
+## Quick Start (Windows)
+
+1. **Install Prerequisites** (see below)
+2. **Install PostgreSQL** and create database `supermarket_db`
+3. **Backend Setup:**
+   ```cmd
+   cd backend
+   python -m venv venv
+   venv\Scripts\activate
+   pip install -r requirements.txt
+   ```
+4. **Create `.env` file** in `backend/` folder with database credentials
+5. **Run migrations:**
+   ```cmd
+   python manage.py migrate
+   python manage.py createsuperuser
+   python manage.py runserver
+   ```
+6. **Frontend Setup:**
+   ```cmd
+   cd ..\frontend
+   npm install
+   npm run dev
+   ```
+
 ---
 
 ## Prerequisites
@@ -10,6 +35,13 @@ Complete setup instructions for the Supermarket Sales Analysis System.
 - PostgreSQL 12 or higher
 - Node.js 16 or higher (for frontend)
 - Git
+
+### Windows-Specific Prerequisites
+
+- **PostgreSQL**: Download and install from [PostgreSQL Downloads](https://www.postgresql.org/download/windows/)
+- **Python**: Download from [Python Downloads](https://www.python.org/downloads/) (make sure to check "Add Python to PATH" during installation)
+- **Node.js**: Download from [Node.js Downloads](https://nodejs.org/)
+- **Git**: Download from [Git for Windows](https://git-scm.com/download/win)
 
 ---
 
@@ -50,27 +82,56 @@ pip install django djangorestframework django-cors-headers psycopg2-binary pytho
 
 ### 4. Setup PostgreSQL Database
 
-**Create database:**
+**On Windows:**
+1. Open **pgAdmin** (installed with PostgreSQL) or use **psql** from Command Prompt
+2. Connect to PostgreSQL server (default password is what you set during installation)
+3. Run the following SQL commands:
+
+**On Linux/Mac:**
+Open terminal and run:
+```bash
+sudo -u postgres psql
+```
+
+**Create database (run in psql or pgAdmin SQL query tool):**
 
 ```sql
 CREATE DATABASE supermarket_db;
-CREATE USER supermarket_user WITH PASSWORD 'your_password';
-GRANT ALL PRIVILEGES ON DATABASE supermarket_db TO supermarket_user;
+CREATE USER postgres WITH PASSWORD 'your_password';
+ALTER USER postgres WITH SUPERUSER;
 ```
+
+**Note:** If you're using the default `postgres` user, you can skip creating a new user and just create the database. Make sure to use the same username and password in your `.env` file.
 
 ### 5. Configure Environment Variables
 
-Create `.env` file in `backend/`:
+Create `.env` file in `backend/` directory:
+
+**On Windows:**
+- Open Notepad or any text editor
+- Create a new file and save it as `.env` in the `backend` folder
+- Make sure the file extension is `.env` (not `.env.txt`)
+
+**On Linux/Mac:**
+```bash
+cd backend
+touch .env
+```
+
+Add the following content to the `.env` file:
 
 ```env
 SECRET_KEY=your-secret-key-here
 DEBUG=True
-DATABASE_NAME=supermarket_db
-DATABASE_USER=supermarket_user
-DATABASE_PASSWORD=your_password
-DATABASE_HOST=localhost
-DATABASE_PORT=5432
+ALLOWED_HOSTS=localhost,127.0.0.1
+DB_NAME=supermarket_db
+DB_USER=postgres
+DB_PASSWORD=your_password
+DB_HOST=localhost
+DB_PORT=5432
 ```
+
+**Note:** Replace `your_password` with the password you set when installing PostgreSQL.
 
 ### 6. Run Migrations
 
@@ -108,21 +169,34 @@ cd frontend
 npm install
 ```
 
-### 3. Configure API URL
+### 3. Configure API URL (Optional)
 
-Create `.env` file in `frontend/`:
+If you need to change the API URL, create `.env` file in `frontend/`:
+
+**On Windows:**
+- Open Notepad and create a new file
+- Save it as `.env` in the `frontend` folder
+
+**On Linux/Mac:**
+```bash
+touch .env
+```
+
+Add the following content:
 
 ```env
-REACT_APP_API_URL=http://localhost:8000/api
+VITE_API_URL=http://localhost:8000/api
 ```
+
+**Note:** The default API URL is `http://localhost:8000/api`, so you only need to create this file if you're using a different backend URL.
 
 ### 4. Run Development Server
 
 ```bash
-npm start
+npm run dev
 ```
 
-Frontend will be available at: `http://localhost:3000`
+Frontend will be available at: `http://localhost:5173` (Vite default port)
 
 ---
 
@@ -176,26 +250,6 @@ python test_predict.py
 
 ---
 
-## Docker Setup (Optional)
-
-### 1. Build and Run
-
-```bash
-docker-compose up --build
-```
-
-### 2. Run Migrations
-
-```bash
-docker-compose exec backend python manage.py migrate
-```
-
-### 3. Create Superuser
-
-```bash
-docker-compose exec backend python manage.py createsuperuser
-```
-
 ---
 
 ## Database Setup
@@ -231,10 +285,9 @@ sales-analysis/
 │   │   └── predict.py
 │   ├── manage.py
 │   └── requirements.txt
-├── frontend/
-│   ├── src/
-│   └── package.json
-└── docker-compose.yml
+└── frontend/
+    ├── src/
+    └── package.json
 ```
 
 ---
@@ -249,6 +302,19 @@ sales-analysis/
 
 ### Port Already in Use
 
+**On Windows:**
+```cmd
+# Find process using port 8000
+netstat -ano | findstr :8000
+
+# Kill the process (replace PID with the number from above)
+taskkill /PID <PID> /F
+
+# Or use different port
+python manage.py runserver 8001
+```
+
+**On Linux/Mac:**
 ```bash
 # Kill process on port 8000
 lsof -ti:8000 | xargs kill -9
