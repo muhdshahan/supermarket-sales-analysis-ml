@@ -151,6 +151,7 @@ export default function Products() {
         ...formData,
         category: formData.category || null,
         unit_price: parseFloat(formData.unit_price) || 0,
+        barcode: formData.barcode && formData.barcode.trim() ? formData.barcode.trim() : null,
       }
 
       if (selectedProduct) {
