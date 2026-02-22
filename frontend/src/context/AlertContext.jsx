@@ -16,8 +16,9 @@ export const useAlerts = () => {
 export const AlertProvider = ({ children }) => {
   const { user } = useAuth()
   const [unreadCount, setUnreadCount] = useState(0)
-  const [lastChecked, setLastChecked] = useState(null)
+  const lastCheckedRef = useRef(null)
   const intervalRef = useRef(null)
+  const isInitialMountRef = useRef(true)
 
   // Check for new alerts
   const checkForNewAlerts = useCallback(async (showToast = true) => {
@@ -28,10 +29,10 @@ export const AlertProvider = ({ children }) => {
       const unreadAlerts = response.data
       
       // If we have a last checked time, only show new alerts
-      if (lastChecked && showToast) {
+      if (lastCheckedRef.current && showToast && !isInitialMountRef.current) {
         const newAlerts = unreadAlerts.filter(alert => {
           const alertDate = new Date(alert.created_at)
-          return alertDate > lastChecked
+          return alertDate > lastCheckedRef.current
         })
         
         // Show toast for each new alert
@@ -57,11 +58,12 @@ export const AlertProvider = ({ children }) => {
       }
       
       setUnreadCount(unreadAlerts.length)
-      setLastChecked(new Date())
+      lastCheckedRef.current = new Date()
+      isInitialMountRef.current = false
     } catch (error) {
       console.error('Failed to check alerts:', error)
     }
-  }, [user, lastChecked])
+  }, [user])
 
   // Check alerts on mount and periodically
   useEffect(() => {
@@ -77,11 +79,13 @@ export const AlertProvider = ({ children }) => {
       return () => {
         if (intervalRef.current) {
           clearInterval(intervalRef.current)
+          intervalRef.current = null
         }
       }
     } else {
       setUnreadCount(0)
-      setLastChecked(null)
+      lastCheckedRef.current = null
+      isInitialMountRef.current = true
     }
   }, [user, checkForNewAlerts])
 
