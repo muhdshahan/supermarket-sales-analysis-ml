@@ -355,7 +355,8 @@ export default function Shops() {
             </Button>
           </DialogFooter>
         </DialogContent>
-      </Dialog>
+        </Dialog>
+      </div>
     </AppLayout>
   )
 }
