@@ -104,3 +104,51 @@
     @apply shadow-medium -translate-y-1;
   }
 }
+
+@layer components {
+  /* Typography System */
+  .heading-1 {
+    @apply text-4xl font-bold tracking-tight text-foreground;
+  }
+  
+  .heading-2 {
+    @apply text-3xl font-bold tracking-tight text-foreground;
+  }
+  
+  .heading-3 {
+    @apply text-2xl font-semibold tracking-tight text-foreground;
+  }
+  
+  .heading-4 {
+    @apply text-xl font-semibold tracking-tight text-foreground;
+  }
+  
+  .body-large {
+    @apply text-lg leading-7 text-foreground;
+  }
+  
+  .body-medium {
+    @apply text-base leading-6 text-foreground;
+  }
+  
+  .body-small {
+    @apply text-sm leading-5 text-foreground;
+  }
+  
+  .caption {
+    @apply text-xs leading-4 text-muted-foreground;
+  }
+  
+  .label-text {
+    @apply text-sm font-medium leading-none text-foreground;
+  }
+  
+  /* Enhanced text utilities */
+  .text-gradient {
+    @apply bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent;
+  }
+  
+  .text-muted-gradient {
+    @apply bg-gradient-to-r from-gray-600 to-gray-400 bg-clip-text text-transparent;
+  }
+}
