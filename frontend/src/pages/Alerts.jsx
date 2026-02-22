@@ -29,6 +29,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Bell, CheckCircle2, AlertTriangle, AlertCircle, Info, Filter, Loader2, CheckCheck } from 'lucide-react'
+import AppLayout from '@/components/AppLayout'
 
 const SEVERITY_COLORS = {
   low: 'bg-blue-100 text-blue-800',
@@ -188,24 +189,20 @@ export default function Alerts() {
   const highCount = alerts.filter(a => a.severity === 'high' && !a.is_read).length
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50">
-      {/* Header */}
-      <header className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-blue-500 rounded-lg flex items-center justify-center">
-                <Bell className="w-6 h-6 text-white" />
-              </div>
-              <h1 className="text-2xl font-bold text-gray-800">Alerts</h1>
-            </div>
-            {unreadCount > 0 && (
-              <Button
-                onClick={markAllAsRead}
-                disabled={markingRead}
-                variant="outline"
-                className="flex items-center gap-2"
-              >
+    <AppLayout>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="flex justify-between items-center mb-6">
+          <div>
+            <h1 className="heading-2 text-gray-900">Alerts</h1>
+            <p className="body-small text-muted-foreground mt-1">View system alerts and notifications</p>
+          </div>
+          {unreadCount > 0 && (
+            <Button
+              onClick={markAllAsRead}
+              disabled={markingRead}
+              variant="outline"
+              className="flex items-center gap-2 border-2 hover:bg-primary/5 hover:border-primary"
+            >
                 {markingRead ? (
                   <>
                     <Loader2 className="h-4 w-4 animate-spin" />
@@ -221,10 +218,6 @@ export default function Alerts() {
             )}
           </div>
         </div>
-      </header>
-
-      {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Summary Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
           <Card>
@@ -506,7 +499,8 @@ export default function Alerts() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </div>
+      </div>
+    </AppLayout>
   )
 }
 
