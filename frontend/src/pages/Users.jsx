@@ -550,7 +550,8 @@ export default function Users() {
             </Button>
           </DialogFooter>
         </DialogContent>
-      </Dialog>
+        </Dialog>
+      </div>
     </AppLayout>
   )
 }
