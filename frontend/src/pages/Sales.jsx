@@ -367,7 +367,8 @@ export default function Sales() {
             </Button>
           </DialogFooter>
         </DialogContent>
-      </Dialog>
+        </Dialog>
+      </div>
     </AppLayout>
   )
 }
