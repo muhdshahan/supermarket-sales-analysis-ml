@@ -32,6 +32,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Plus, Pencil, Trash2, Warehouse, AlertTriangle } from 'lucide-react'
+import AppLayout from '@/components/AppLayout'
 
 export default function Inventory() {
   const { user } = useAuth()
@@ -228,37 +229,22 @@ export default function Inventory() {
     : shops
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50">
-      {/* Header */}
-      <header className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-blue-500 rounded-lg flex items-center justify-center">
-                <Warehouse className="w-6 h-6 text-white" />
-              </div>
-              <h1 className="text-2xl font-bold text-gray-800">Inventory Management</h1>
-            </div>
-            {canEdit && (
-              <Button onClick={handleCreate}>
-                <Plus className="w-4 h-4 mr-2" />
-                Add Stock
-              </Button>
-            )}
+    <AppLayout>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="flex justify-between items-center mb-6">
+          <div>
+            <h1 className="heading-2 text-gray-900">Inventory Management</h1>
+            <p className="body-small text-muted-foreground mt-1">Manage inventory levels for products across shops</p>
           </div>
+          {canEdit && (
+            <Button onClick={handleCreate} className="bg-gradient-primary hover:opacity-90">
+              <Plus className="w-4 h-4 mr-2" />
+              Add Stock
+            </Button>
+          )}
         </div>
-      </header>
-
-      {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <Card>
-          <CardHeader>
-            <CardTitle>Stock Levels</CardTitle>
-            <CardDescription>
-              Manage inventory levels for products across shops
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
+        <Card className="border-0 shadow-soft">
+          <CardContent className="pt-6">
             {/* Filters */}
             <div className="flex gap-4 mb-6">
               <div className="flex-1">
@@ -528,7 +514,7 @@ export default function Inventory() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </div>
+    </AppLayout>
   )
 }
 

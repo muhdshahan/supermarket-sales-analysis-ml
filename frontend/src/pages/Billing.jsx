@@ -24,6 +24,7 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { Plus, Minus, Trash2, ShoppingCart, Receipt } from 'lucide-react'
+import AppLayout from '@/components/AppLayout'
 
 export default function Billing() {
   const { user, refreshUser } = useAuth()
@@ -221,28 +222,19 @@ export default function Billing() {
     : shops
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50">
-      {/* Header */}
-      <header className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-blue-500 rounded-lg flex items-center justify-center">
-                <ShoppingCart className="w-6 h-6 text-white" />
-              </div>
-              <h1 className="text-2xl font-bold text-gray-800">Billing</h1>
-            </div>
-            {cart.length > 0 && (
-              <Button variant="outline" onClick={clearCart}>
-                Clear Cart
-              </Button>
-            )}
+    <AppLayout>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="flex justify-between items-center mb-6">
+          <div>
+            <h1 className="heading-2 text-gray-900">Billing</h1>
+            <p className="body-small text-muted-foreground mt-1">Create sales and bills</p>
           </div>
+          {cart.length > 0 && (
+            <Button variant="outline" onClick={clearCart} className="border-2 hover:bg-destructive/5 hover:border-destructive hover:text-destructive">
+              Clear Cart
+            </Button>
+          )}
         </div>
-      </header>
-
-      {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Products List */}
           <div className="lg:col-span-2">
@@ -472,7 +464,7 @@ export default function Billing() {
             </Card>
           </div>
         </div>
-      </main>
-    </div>
+      </div>
+    </AppLayout>
   )
 }

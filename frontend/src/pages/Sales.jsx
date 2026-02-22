@@ -31,6 +31,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Receipt, Eye, Calendar, Filter } from 'lucide-react'
+import AppLayout from '@/components/AppLayout'
 
 export default function Sales() {
   const { user } = useAuth()
@@ -123,23 +124,12 @@ export default function Sales() {
   const totalSales = sales.reduce((sum, sale) => sum + parseFloat(sale.final_amount), 0)
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50">
-      {/* Header */}
-      <header className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-blue-500 rounded-lg flex items-center justify-center">
-                <Receipt className="w-6 h-6 text-white" />
-              </div>
-              <h1 className="text-2xl font-bold text-gray-800">Sales History</h1>
-            </div>
-          </div>
+    <AppLayout>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="mb-6">
+          <h1 className="heading-2 text-gray-900">Sales History</h1>
+          <p className="body-small text-muted-foreground mt-1">View and manage sales transactions</p>
         </div>
-      </header>
-
-      {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Summary Card */}
         <Card className="mb-6">
           <CardContent className="pt-6">
@@ -379,7 +369,7 @@ export default function Sales() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </div>
+    </AppLayout>
   )
 }
 
