@@ -16,6 +16,7 @@ import RequestTransfer from '@/pages/RequestTransfer'
 import ManageTransfers from '@/pages/ManageTransfers'
 import TransferHistory from '@/pages/TransferHistory'
 import Alerts from '@/pages/Alerts'
+import Reports from '@/pages/Reports'
 import ProtectedRoute from '@/components/ProtectedRoute'
 
 function AppRoutes() {
@@ -124,6 +125,14 @@ function AppRoutes() {
         element={
           <ProtectedRoute>
             <Alerts />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/reports"
+        element={
+          <ProtectedRoute>
+            <Reports />
           </ProtectedRoute>
         }
       />

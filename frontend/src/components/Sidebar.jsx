@@ -14,7 +14,8 @@ import {
   History,
   Bell,
   Users,
-  X
+  X,
+  FileText
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
@@ -70,6 +71,12 @@ const menuItems = [
     title: 'Sales',
     icon: Receipt,
     path: '/sales',
+    roles: ['admin', 'sales_manager', 'staff']
+  },
+  {
+    title: 'Reports',
+    icon: FileText,
+    path: '/reports',
     roles: ['admin', 'sales_manager', 'staff']
   },
   {

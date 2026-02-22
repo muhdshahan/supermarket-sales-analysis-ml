@@ -3,41 +3,114 @@ import { useAuth } from '@/context/AuthContext'
 import api from '@/lib/api'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import AppLayout from '@/components/AppLayout'
+import {
+  PieChart,
+  Pie,
+  Cell,
+  LineChart,
+  Line,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+} from 'recharts'
+import { TrendingUp, DollarSign, ShoppingCart } from 'lucide-react'
+
+const COLORS = ['#10b981', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6']
 
 export default function Dashboard() {
   const { user } = useAuth()
   const [shopCount, setShopCount] = useState(0)
   const [categoryCount, setCategoryCount] = useState(0)
   const [productCount, setProductCount] = useState(0)
+  const [salesData, setSalesData] = useState([])
+  const [paymentData, setPaymentData] = useState([])
+  const [topProducts, setTopProducts] = useState([])
+  const [salesSummary, setSalesSummary] = useState({
+    total_revenue: 0,
+    total_sales: 0,
+    average_sale: 0,
+  })
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    // Fetch shop count
-    api.get('/shops/')
-      .then(response => {
-        setShopCount(response.data.length)
-      })
-      .catch(() => {
-        // Silently fail - just show 0
-      })
-    
-    // Fetch category count
-    api.get('/products/categories/')
-      .then(response => {
-        setCategoryCount(response.data.length)
-      })
-      .catch(() => {
-        // Silently fail - just show 0
-      })
-    
-    // Fetch product count
-    api.get('/products/')
-      .then(response => {
-        setProductCount(response.data.length)
-      })
-      .catch(() => {
-        // Silently fail - just show 0
-      })
+    fetchDashboardData()
   }, [])
+
+  const fetchDashboardData = async () => {
+    try {
+      setLoading(true)
+      
+      // Set date range for last 30 days
+      const endDate = new Date()
+      const startDate = new Date()
+      startDate.setDate(startDate.getDate() - 30)
+      
+      const startDateStr = startDate.toISOString().split('T')[0]
+      const endDateStr = endDate.toISOString().split('T')[0]
+      
+      const params = new URLSearchParams({
+        period: 'daily',
+        start_date: startDateStr,
+        end_date: endDateStr,
+      })
+      
+      // If user is not admin, filter by their shop
+      if (user?.role !== 'admin' && user?.shop) {
+        const shopId = typeof user.shop === 'object' ? user.shop.id : user.shop
+        if (shopId) {
+          params.append('shop_id', shopId.toString())
+        }
+      }
+
+      // Fetch all data in parallel
+      const [shopsRes, categoriesRes, productsRes, salesRes, paymentRes, topProductsRes] = await Promise.all([
+        api.get('/shops/').catch(() => ({ data: [] })),
+        api.get('/products/categories/').catch(() => ({ data: [] })),
+        api.get('/products/').catch(() => ({ data: [] })),
+        api.get(`/sales/reports/?${params.toString()}`).catch(() => ({ data: null })),
+        api.get(`/sales/reports/payment-methods/?${params.toString()}`).catch(() => ({ data: { data: [] } })),
+        api.get(`/sales/reports/top-products/?${params.toString()}&limit=5`).catch(() => ({ data: { data: [] } })),
+      ])
+
+      setShopCount(shopsRes.data.length)
+      setCategoryCount(categoriesRes.data.length)
+      setProductCount(productsRes.data.length)
+      
+      if (salesRes.data) {
+        setSalesData(salesRes.data.data || [])
+        setSalesSummary({
+          total_revenue: salesRes.data.summary?.total_revenue || 0,
+          total_sales: salesRes.data.summary?.total_sales || 0,
+          average_sale: salesRes.data.summary?.average_sale || 0,
+        })
+      }
+      
+      setPaymentData(paymentRes.data.data || [])
+      setTopProducts(topProductsRes.data.data || [])
+    } catch (error) {
+      console.error('Failed to fetch dashboard data:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const formatCurrency = (value) => {
+    return new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency: 'INR',
+      maximumFractionDigits: 0,
+    }).format(value)
+  }
+
+  const formatDate = (dateString) => {
+    const date = new Date(dateString)
+    return date.toLocaleDateString('en-IN', { month: 'short', day: 'numeric' })
+  }
 
   return (
     <AppLayout>
@@ -94,22 +167,167 @@ export default function Dashboard() {
             </CardContent>
           </Card>
 
-          <Card className="card-hover border-0 shadow-soft bg-gradient-to-br from-white to-amber-50/50 animate-fade-in" style={{ animationDelay: '0.4s' }}>
+          <Card className="card-hover border-0 shadow-soft bg-gradient-to-br from-white to-purple-50/50 animate-fade-in" style={{ animationDelay: '0.4s' }}>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="label-text text-gray-700">Low Stock Items</CardTitle>
-              <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-amber-500 to-amber-600 flex items-center justify-center shadow-medium">
-                <svg className="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                </svg>
+              <CardTitle className="label-text text-gray-700">Total Revenue</CardTitle>
+              <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center shadow-glow">
+                <DollarSign className="h-5 w-5 text-white" />
               </div>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-gray-900 mb-1">0</div>
-              <p className="caption">Items need restocking</p>
+              <div className="text-3xl font-bold text-gray-900 mb-1">
+                {loading ? '...' : formatCurrency(salesSummary.total_revenue)}
+              </div>
+              <p className="caption">Last 30 days</p>
             </CardContent>
           </Card>
         </div>
 
+        {/* Sales Stats Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          <Card className="border-0 shadow-soft">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Total Sales</CardTitle>
+              <ShoppingCart className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{loading ? '...' : salesSummary.total_sales}</div>
+              <p className="text-xs text-muted-foreground mt-1">Transactions (30 days)</p>
+            </CardContent>
+          </Card>
+
+          <Card className="border-0 shadow-soft">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Average Sale</CardTitle>
+              <TrendingUp className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">
+                {loading ? '...' : formatCurrency(salesSummary.average_sale)}
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">Per transaction</p>
+            </CardContent>
+          </Card>
+
+          <Card className="border-0 shadow-soft">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Revenue Trend</CardTitle>
+              <TrendingUp className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">
+                {salesData.length > 1 && !loading
+                  ? salesData[salesData.length - 1].total_revenue > salesData[0].total_revenue
+                    ? '↑'
+                    : '↓'
+                  : '—'}
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">vs previous period</p>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Charts */}
+        {!loading && (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+            {/* Revenue Chart */}
+            {salesData.length > 0 && (
+              <Card className="border-0 shadow-soft">
+                <CardHeader>
+                  <CardTitle className="heading-4">Revenue Trend (Last 30 Days)</CardTitle>
+                  <CardDescription>Daily revenue over time</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <ResponsiveContainer width="100%" height={300}>
+                    <LineChart data={salesData}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis
+                        dataKey="period"
+                        tickFormatter={formatDate}
+                        style={{ fontSize: '12px' }}
+                      />
+                      <YAxis
+                        tickFormatter={(value) => `₹${(value / 1000).toFixed(0)}k`}
+                        style={{ fontSize: '12px' }}
+                      />
+                      <Tooltip
+                        formatter={(value) => formatCurrency(value)}
+                        labelFormatter={(label) => formatDate(label)}
+                      />
+                      <Legend />
+                      <Line
+                        type="monotone"
+                        dataKey="total_revenue"
+                        stroke="#10b981"
+                        strokeWidth={2}
+                        name="Revenue"
+                        dot={{ r: 4 }}
+                      />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Payment Methods Pie Chart */}
+            {paymentData.length > 0 && (
+              <Card className="border-0 shadow-soft">
+                <CardHeader>
+                  <CardTitle className="heading-4">Payment Methods</CardTitle>
+                  <CardDescription>Revenue breakdown by payment method</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <ResponsiveContainer width="100%" height={300}>
+                    <PieChart>
+                      <Pie
+                        data={paymentData}
+                        cx="50%"
+                        cy="50%"
+                        labelLine={false}
+                        label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                        outerRadius={80}
+                        fill="#8884d8"
+                        dataKey="total_revenue"
+                      >
+                        {paymentData.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                        ))}
+                      </Pie>
+                      <Tooltip formatter={(value) => formatCurrency(value)} />
+                    </PieChart>
+                  </ResponsiveContainer>
+                </CardContent>
+              </Card>
+            )}
+          </div>
+        )}
+
+        {/* Top Products */}
+        {!loading && topProducts.length > 0 && (
+          <Card className="mb-8 border-0 shadow-soft">
+            <CardHeader>
+              <CardTitle className="heading-4">Top Selling Products (Last 30 Days)</CardTitle>
+              <CardDescription>Best selling products by quantity</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ResponsiveContainer width="100%" height={300}>
+                <BarChart data={topProducts} layout="vertical">
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis type="number" style={{ fontSize: '12px' }} />
+                  <YAxis
+                    dataKey="product_name"
+                    type="category"
+                    width={150}
+                    style={{ fontSize: '12px' }}
+                  />
+                  <Tooltip formatter={(value) => `${value} units`} />
+                  <Legend />
+                  <Bar dataKey="total_quantity" fill="#3b82f6" name="Quantity Sold" />
+                </BarChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Welcome Card */}
         <Card className="border-0 shadow-soft bg-gradient-to-br from-white to-primary/5">
