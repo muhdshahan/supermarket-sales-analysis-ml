@@ -280,13 +280,13 @@ export default function Sales() {
         {/* Sale Details Dialog */}
         <Dialog open={isDetailDialogOpen} onOpenChange={setIsDetailDialogOpen}>
           <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Sale Details - #{selectedSale?.id}</DialogTitle>
-            <DialogDescription>
-              {selectedSale && formatDate(selectedSale.transaction_date)}
-            </DialogDescription>
-          </DialogHeader>
-          {selectedSale && (
+            <DialogHeader>
+              <DialogTitle>Sale Details - #{selectedSale?.id}</DialogTitle>
+              <DialogDescription>
+                {selectedSale && formatDate(selectedSale.transaction_date)}
+              </DialogDescription>
+            </DialogHeader>
+            {selectedSale && (
             <div className="space-y-4">
               {/* Sale Info */}
               <div className="grid grid-cols-2 gap-4">
@@ -359,14 +359,14 @@ export default function Sales() {
                   <p className="text-sm">{selectedSale.notes}</p>
                 </div>
               )}
-            </div>
-          )}
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsDetailDialogOpen(false)}>
-              Close
-            </Button>
-          </DialogFooter>
-        </DialogContent>
+              </div>
+            )}
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setIsDetailDialogOpen(false)}>
+                Close
+              </Button>
+            </DialogFooter>
+          </DialogContent>
         </Dialog>
       </div>
     </AppLayout>
