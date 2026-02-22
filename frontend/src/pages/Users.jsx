@@ -259,13 +259,10 @@ export default function Users() {
             <p className="body-small text-muted-foreground mt-1">Manage users and permissions</p>
           </div>
           <Button onClick={handleCreate} className="bg-gradient-primary hover:opacity-90">
-              <Plus className="w-4 h-4 mr-2" />
-              Add User
-            </Button>
-          </div>
+            <Plus className="w-4 h-4 mr-2" />
+            Add User
+          </Button>
         </div>
-      </header>
-
         <Card className="border-0 shadow-soft">
           <CardHeader>
             <CardTitle>All Users</CardTitle>
