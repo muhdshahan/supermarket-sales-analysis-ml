@@ -399,14 +399,14 @@ export default function ManageTransfers() {
 
         {/* Transfer Details Dialog */}
         <Dialog open={isDetailDialogOpen} onOpenChange={setIsDetailDialogOpen}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>Transfer Details</DialogTitle>
-            <DialogDescription>
-              View complete information about this transfer
-            </DialogDescription>
-          </DialogHeader>
-          {selectedTransfer && (
+          <DialogContent className="max-w-2xl">
+            <DialogHeader>
+              <DialogTitle>Transfer Details</DialogTitle>
+              <DialogDescription>
+                View complete information about this transfer
+              </DialogDescription>
+            </DialogHeader>
+            {selectedTransfer && (
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
@@ -467,87 +467,88 @@ export default function ManageTransfers() {
                 </div>
               )}
             </div>
-          )}
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsDetailDialogOpen(false)}>
-              Close
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+            )}
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setIsDetailDialogOpen(false)}>
+                Close
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
 
-      {/* Action Dialog */}
-      <Dialog open={isActionDialogOpen} onOpenChange={setIsActionDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>
-              {actionType === 'approve' && 'Approve Transfer'}
-              {actionType === 'reject' && 'Reject Transfer'}
-              {actionType === 'complete' && 'Complete Transfer'}
-            </DialogTitle>
-            <DialogDescription>
-              {actionType === 'approve' && 'Are you sure you want to approve this transfer request?'}
-              {actionType === 'reject' && 'Are you sure you want to reject this transfer request?'}
-              {actionType === 'complete' && 'This will update stock in both shops. Are you sure?'}
-            </DialogDescription>
-          </DialogHeader>
-          {selectedTransfer && (
-            <div className="space-y-4">
-              <div className="p-4 bg-muted rounded-md">
-                <p className="text-sm">
-                  <span className="font-semibold">{selectedTransfer.quantity}x</span>{' '}
-                  {selectedTransfer.product_name} from {selectedTransfer.from_shop_name} to {selectedTransfer.to_shop_name}
-                </p>
+        {/* Action Dialog */}
+        <Dialog open={isActionDialogOpen} onOpenChange={setIsActionDialogOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>
+                {actionType === 'approve' && 'Approve Transfer'}
+                {actionType === 'reject' && 'Reject Transfer'}
+                {actionType === 'complete' && 'Complete Transfer'}
+              </DialogTitle>
+              <DialogDescription>
+                {actionType === 'approve' && 'Are you sure you want to approve this transfer request?'}
+                {actionType === 'reject' && 'Are you sure you want to reject this transfer request?'}
+                {actionType === 'complete' && 'This will update stock in both shops. Are you sure?'}
+              </DialogDescription>
+            </DialogHeader>
+            {selectedTransfer && (
+              <div className="space-y-4">
+                <div className="p-4 bg-muted rounded-md">
+                  <p className="text-sm">
+                    <span className="font-semibold">{selectedTransfer.quantity}x</span>{' '}
+                    {selectedTransfer.product_name} from {selectedTransfer.from_shop_name} to {selectedTransfer.to_shop_name}
+                  </p>
+                </div>
+                <div className="space-y-2">
+                  <Label>Notes (Optional)</Label>
+                  <textarea
+                    value={actionNotes}
+                    onChange={(e) => setActionNotes(e.target.value)}
+                    placeholder="Add any notes about this action..."
+                    rows={3}
+                    className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                  />
+                </div>
               </div>
-              <div className="space-y-2">
-                <Label>Notes (Optional)</Label>
-                <textarea
-                  value={actionNotes}
-                  onChange={(e) => setActionNotes(e.target.value)}
-                  placeholder="Add any notes about this action..."
-                  rows={3}
-                  className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                />
-              </div>
-            </div>
-          )}
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => {
-                setIsActionDialogOpen(false)
-                setActionType(null)
-                setActionNotes('')
-              }}
-              disabled={processing}
-            >
-              Cancel
-            </Button>
-            <Button
-              onClick={handleAction}
-              disabled={processing}
-              className={
-                actionType === 'reject' ? 'bg-red-600 hover:bg-red-700' :
-                actionType === 'complete' ? 'bg-blue-600 hover:bg-blue-700' :
-                'bg-green-600 hover:bg-green-700'
-              }
-            >
-              {processing ? (
-                <>
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Processing...
-                </>
-              ) : (
-                <>
-                  {actionType === 'approve' && 'Approve'}
-                  {actionType === 'reject' && 'Reject'}
-                  {actionType === 'complete' && 'Complete'}
-                </>
-              )}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+            )}
+            <DialogFooter>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setIsActionDialogOpen(false)
+                  setActionType(null)
+                  setActionNotes('')
+                }}
+                disabled={processing}
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={handleAction}
+                disabled={processing}
+                className={
+                  actionType === 'reject' ? 'bg-red-600 hover:bg-red-700' :
+                  actionType === 'complete' ? 'bg-blue-600 hover:bg-blue-700' :
+                  'bg-green-600 hover:bg-green-700'
+                }
+              >
+                {processing ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Processing...
+                  </>
+                ) : (
+                  <>
+                    {actionType === 'approve' && 'Approve'}
+                    {actionType === 'reject' && 'Reject'}
+                    {actionType === 'complete' && 'Complete'}
+                  </>
+                )}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      </div>
     </AppLayout>
   )
 }
