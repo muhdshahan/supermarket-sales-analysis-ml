@@ -15,6 +15,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { ArrowRight, Package } from 'lucide-react'
+import AppLayout from '@/components/AppLayout'
 
 export default function RequestTransfer() {
   const { user } = useAuth()
@@ -171,12 +172,14 @@ export default function RequestTransfer() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
-          <p className="mt-4 text-muted-foreground">Loading...</p>
+      <AppLayout>
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+            <p className="mt-4 text-muted-foreground">Loading...</p>
+          </div>
         </div>
-      </div>
+      </AppLayout>
     )
   }
 
@@ -185,17 +188,17 @@ export default function RequestTransfer() {
   const productName = products.find(p => p.id === parseInt(formData.product))?.name || ''
 
   return (
-    <div className="container mx-auto p-6 max-w-4xl">
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Package className="h-5 w-5" />
+    <AppLayout>
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="mb-6">
+          <h1 className="heading-2 text-gray-900 flex items-center gap-2">
+            <Package className="h-6 w-6" />
             Request Stock Transfer
-          </CardTitle>
-          <CardDescription>
-            Request to transfer stock from one shop to another
-          </CardDescription>
-        </CardHeader>
+          </h1>
+          <p className="body-small text-muted-foreground mt-1">Request to transfer stock from one shop to another</p>
+        </div>
+        <Card className="border-0 shadow-soft">
+          <CardContent className="pt-6">
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* From Shop */}
@@ -326,8 +329,10 @@ export default function RequestTransfer() {
             </Button>
           </form>
         </CardContent>
-      </Card>
-    </div>
+          </CardContent>
+        </Card>
+      </div>
+    </AppLayout>
   )
 }
 
