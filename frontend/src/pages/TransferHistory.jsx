@@ -312,10 +312,9 @@ export default function TransferHistory() {
             )}
           </CardContent>
         </Card>
-      </main>
 
-      {/* Transfer Details Dialog */}
-      <Dialog open={isDetailDialogOpen} onOpenChange={setIsDetailDialogOpen}>
+        {/* Transfer Details Dialog */}
+        <Dialog open={isDetailDialogOpen} onOpenChange={setIsDetailDialogOpen}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle>Transfer Details</DialogTitle>
