@@ -52,11 +52,11 @@ export default function Billing() {
     }
     loadData()
   }, [])
-  
+
   // Set default shop for staff/sales_manager after shops are loaded
   useEffect(() => {
     if (shops.length === 0 || selectedShop) return
-    
+
     // user.shop can be either an ID (number) or an object with id property
     // Handle both cases: shop as object {id: 1} or shop as number 1
     let shopId = null
@@ -67,7 +67,7 @@ export default function Billing() {
         shopId = user.shop
       }
     }
-    
+
     if (shopId) {
       // Make sure the shop exists in the shops list
       const shopExists = shops.some(s => s.id === shopId)
@@ -103,7 +103,7 @@ export default function Billing() {
   // Add product to cart
   const addToCart = (product) => {
     const existingItem = cart.find(item => item.product.id === product.id)
-    
+
     if (existingItem) {
       // Increase quantity
       setCart(cart.map(item =>
@@ -164,7 +164,7 @@ export default function Billing() {
   // Submit sale
   const handleSubmit = async (e) => {
     e.preventDefault()
-    
+
     if (!selectedShop) {
       toast.error('Please select a shop')
       return
@@ -193,19 +193,19 @@ export default function Billing() {
 
       const response = await api.post('/sales/', saleData)
       toast.success('Sale created successfully!')
-      
+
       // Clear cart and reset form
       clearCart()
-      
+
       // Check for new alerts after sale (small delay to ensure backend processed)
       setTimeout(() => {
         checkForNewAlerts(true)
       }, 1000)
-      
+
       // Optionally redirect to sale details or show receipt
       console.log('Sale created:', response.data)
     } catch (error) {
-      toast.error(formatError(error.response?.data || 'Failed to create sale'))
+      toast.error(formatError(error.response?.data || error.message || 'Failed to create sale'))
     } finally {
       setSubmitting(false)
     }
@@ -213,10 +213,10 @@ export default function Billing() {
 
   // Get available shops (staff/sales_manager see only their shop)
   // user.shop can be either an ID (number) or an object with id property
-  const userShopId = typeof user?.shop === 'object' && user?.shop !== null 
-    ? user.shop.id 
+  const userShopId = typeof user?.shop === 'object' && user?.shop !== null
+    ? user.shop.id
     : user?.shop
-  
+
   const availableShops = (user?.role === 'staff' || user?.role === 'sales_manager') && userShopId
     ? shops.filter(s => s.id === userShopId)
     : shops

@@ -79,7 +79,7 @@ class SaleListCreateView(generics.ListCreateAPIView):
                 )
             except drf_serializers.ValidationError as e:
                 return Response(
-                    {'error': str(e)},
+                    {'error': e.detail},
                     status=status.HTTP_400_BAD_REQUEST
                 )
         
