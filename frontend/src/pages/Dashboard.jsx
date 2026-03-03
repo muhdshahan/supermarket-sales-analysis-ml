@@ -7,8 +7,8 @@ import {
   PieChart,
   Pie,
   Cell,
-  LineChart,
-  Line,
+  AreaChart,
+  Area,
   BarChart,
   Bar,
   XAxis,
@@ -21,6 +21,29 @@ import {
 import { TrendingUp, DollarSign, ShoppingCart } from 'lucide-react'
 
 const COLORS = ['#10b981', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6']
+
+const CustomTooltip = ({ active, payload, label, currency = false }) => {
+  if (active && payload && payload.length) {
+    return (
+      <div className="bg-white/95 backdrop-blur-sm border border-gray-100 p-3 shadow-xl rounded-xl">
+        {label && (
+          <p className="text-xs font-semibold text-gray-500 mb-1 uppercase tracking-wider">
+            {new Date(label).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
+          </p>
+        )}
+        {payload.map((entry, index) => (
+          <div key={index} className="flex items-center gap-2">
+            <div className="w-2 h-2 rounded-full" style={{ backgroundColor: entry.color || entry.fill }} />
+            <p className="text-sm font-bold text-gray-900">
+              {entry.name}: <span className="text-primary">{currency ? `₹${entry.value.toLocaleString('en-IN')}` : entry.value}</span>
+            </p>
+          </div>
+        ))}
+      </div>
+    )
+  }
+  return null
+}
 
 export default function Dashboard() {
   const { user } = useAuth()
@@ -246,70 +269,98 @@ export default function Dashboard() {
         {/* Charts - Hidden for Staff */}
         {!isStaff && !loading && (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-            {/* Revenue Chart */}
+            {/* Revenue Area Chart */}
             {salesData.length > 0 && (
-              <Card className="border-0 shadow-soft">
-                <CardHeader>
-                  <CardTitle className="heading-4">Revenue Trend (Last 30 Days)</CardTitle>
-                  <CardDescription>Daily revenue over time</CardDescription>
+              <Card className="border-0 shadow-soft overflow-hidden">
+                <CardHeader className="bg-gradient-to-r from-white to-green-50/30 border-b border-gray-100">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <CardTitle className="heading-4 text-gray-900">Revenue Performance</CardTitle>
+                      <CardDescription>Daily revenue trends (Last 30 Days)</CardDescription>
+                    </div>
+                    <div className="p-2 bg-green-100 rounded-lg text-green-600">
+                      <TrendingUp className="w-5 h-5" />
+                    </div>
+                  </div>
                 </CardHeader>
-                <CardContent>
-                  <ResponsiveContainer width="100%" height={300}>
-                    <LineChart data={salesData}>
-                      <CartesianGrid strokeDasharray="3 3" />
+                <CardContent className="pt-6">
+                  <ResponsiveContainer width="100%" height={320}>
+                    <AreaChart data={salesData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+                      <defs>
+                        <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="#10b981" stopOpacity={0.3} />
+                          <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
+                        </linearGradient>
+                      </defs>
+                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
                       <XAxis
                         dataKey="period"
                         tickFormatter={formatDate}
-                        style={{ fontSize: '12px' }}
+                        axisLine={false}
+                        tickLine={false}
+                        tick={{ fill: '#94a3b8', fontSize: 12 }}
+                        dy={10}
                       />
                       <YAxis
                         tickFormatter={(value) => `₹${(value / 1000).toFixed(0)}k`}
-                        style={{ fontSize: '12px' }}
+                        axisLine={false}
+                        tickLine={false}
+                        tick={{ fill: '#94a3b8', fontSize: 12 }}
                       />
-                      <Tooltip
-                        formatter={(value) => formatCurrency(value)}
-                        labelFormatter={(label) => formatDate(label)}
-                      />
-                      <Legend />
-                      <Line
+                      <Tooltip content={<CustomTooltip currency={true} />} />
+                      <Area
                         type="monotone"
                         dataKey="total_revenue"
                         stroke="#10b981"
-                        strokeWidth={2}
+                        strokeWidth={3}
+                        fillOpacity={1}
+                        fill="url(#colorRevenue)"
+                        animationDuration={1500}
                         name="Revenue"
-                        dot={{ r: 4 }}
                       />
-                    </LineChart>
+                    </AreaChart>
                   </ResponsiveContainer>
                 </CardContent>
               </Card>
             )}
 
-            {/* Payment Methods Pie Chart */}
+            {/* Payment Methods Distribution */}
             {paymentData.length > 0 && (
-              <Card className="border-0 shadow-soft">
-                <CardHeader>
-                  <CardTitle className="heading-4">Payment Methods</CardTitle>
-                  <CardDescription>Revenue breakdown by payment method</CardDescription>
+              <Card className="border-0 shadow-soft overflow-hidden">
+                <CardHeader className="bg-gradient-to-r from-white to-blue-50/30 border-b border-gray-100">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <CardTitle className="heading-4 text-gray-900">Payment Breakdown</CardTitle>
+                      <CardDescription>Revenue share by channel</CardDescription>
+                    </div>
+                    <div className="p-2 bg-blue-100 rounded-lg text-blue-600">
+                      <DollarSign className="w-5 h-5" />
+                    </div>
+                  </div>
                 </CardHeader>
-                <CardContent>
-                  <ResponsiveContainer width="100%" height={300}>
+                <CardContent className="pt-6">
+                  <ResponsiveContainer width="100%" height={320}>
                     <PieChart>
                       <Pie
                         data={paymentData}
                         cx="50%"
                         cy="50%"
-                        labelLine={false}
-                        label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-                        outerRadius={80}
-                        fill="#8884d8"
+                        innerRadius={60}
+                        outerRadius={100}
+                        paddingAngle={5}
                         dataKey="total_revenue"
+                        animationDuration={1500}
                       >
                         {paymentData.map((entry, index) => (
                           <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                         ))}
                       </Pie>
-                      <Tooltip formatter={(value) => formatCurrency(value)} />
+                      <Tooltip content={<CustomTooltip currency={true} />} />
+                      <Legend
+                        verticalAlign="bottom"
+                        height={36}
+                        formatter={(value) => <span className="text-sm font-medium text-gray-600">{value}</span>}
+                      />
                     </PieChart>
                   </ResponsiveContainer>
                 </CardContent>
@@ -320,25 +371,39 @@ export default function Dashboard() {
 
         {/* Top Products - Hidden for Staff */}
         {!isStaff && !loading && topProducts.length > 0 && (
-          <Card className="mb-8 border-0 shadow-soft">
-            <CardHeader>
-              <CardTitle className="heading-4">Top Selling Products (Last 30 Days)</CardTitle>
-              <CardDescription>Best selling products by quantity</CardDescription>
+          <Card className="mb-8 border-0 shadow-soft overflow-hidden">
+            <CardHeader className="bg-gradient-to-r from-white to-primary/5 border-b border-gray-100">
+              <CardTitle className="heading-4 text-gray-900">Top Performing Products</CardTitle>
+              <CardDescription>Best sellers by quantity (Last 30 Days)</CardDescription>
             </CardHeader>
-            <CardContent>
-              <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={topProducts} layout="vertical">
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis type="number" style={{ fontSize: '12px' }} />
+            <CardContent className="pt-6">
+              <ResponsiveContainer width="100%" height={320}>
+                <BarChart data={topProducts} layout="vertical" margin={{ top: 5, right: 30, left: 40, bottom: 5 }}>
+                  <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#f0f0f0" />
+                  <XAxis type="number" hide />
                   <YAxis
                     dataKey="product_name"
                     type="category"
                     width={150}
-                    style={{ fontSize: '12px' }}
+                    axisLine={false}
+                    tickLine={false}
+                    tick={{ fill: '#475569', fontSize: 13, fontWeight: 500 }}
                   />
-                  <Tooltip formatter={(value) => `${value} units`} />
-                  <Legend />
-                  <Bar dataKey="total_quantity" fill="#3b82f6" name="Quantity Sold" />
+                  <Tooltip content={<CustomTooltip />} cursor={{ fill: '#f8fafc' }} />
+                  <Bar
+                    dataKey="total_quantity"
+                    fill="url(#colorBar)"
+                    name="Quantity Sold"
+                    radius={[0, 4, 4, 0]}
+                    animationDuration={1500}
+                  >
+                    <defs>
+                      <linearGradient id="colorBar" x1="0" y1="0" x2="1" y2="0">
+                        <stop offset="0%" stopColor="#3b82f6" />
+                        <stop offset="100%" stopColor="#60a5fa" />
+                      </linearGradient>
+                    </defs>
+                  </Bar>
                 </BarChart>
               </ResponsiveContainer>
             </CardContent>
