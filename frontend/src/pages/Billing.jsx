@@ -31,6 +31,8 @@ export default function Billing() {
   const { checkForNewAlerts } = useAlerts()
   const [products, setProducts] = useState([])
   const [shops, setShops] = useState([])
+  const [categories, setCategories] = useState([])
+  const [selectedCategory, setSelectedCategory] = useState('all')
   const [cart, setCart] = useState([])
   const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(false)
@@ -47,8 +49,11 @@ export default function Billing() {
       if (user) {
         await refreshUser()
       }
-      await fetchShops()
-      await fetchProducts()
+      await Promise.all([
+        fetchShops(),
+        fetchProducts(),
+        fetchCategories()
+      ])
     }
     loadData()
   }, [])
@@ -97,6 +102,15 @@ export default function Billing() {
       toast.error(formatError(error.response?.data || 'Failed to fetch products'))
     } finally {
       setLoading(false)
+    }
+  }
+
+  const fetchCategories = async () => {
+    try {
+      const response = await api.get('/products/categories/')
+      setCategories(response.data)
+    } catch (error) {
+      console.error('Failed to fetch categories:', error)
     }
   }
 
@@ -221,6 +235,10 @@ export default function Billing() {
     ? shops.filter(s => s.id === userShopId)
     : shops
 
+  const filteredProducts = selectedCategory === 'all'
+    ? products
+    : products.filter(p => p.category === parseInt(selectedCategory))
+
   return (
     <AppLayout>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -239,39 +257,84 @@ export default function Billing() {
           {/* Products List */}
           <div className="lg:col-span-2">
             <Card>
-              <CardHeader>
+              <CardHeader className="pb-3 text-center sm:text-left">
                 <CardTitle>Products</CardTitle>
                 <CardDescription>Select products to add to cart</CardDescription>
+
+                {/* Category Filter Chips */}
+                {!loading && categories.length > 0 && (
+                  <div className="flex flex-wrap gap-2 mt-4 pb-2 -mx-1 px-1 overflow-x-auto no-scrollbar">
+                    <Button
+                      key="all"
+                      variant={selectedCategory === 'all' ? 'default' : 'outline'}
+                      size="sm"
+                      onClick={() => setSelectedCategory('all')}
+                      className={`rounded-full h-8 px-4 transition-all ${selectedCategory === 'all' ? 'shadow-glow' : ''}`}
+                    >
+                      All
+                    </Button>
+                    {categories.map((category) => (
+                      <Button
+                        key={category.id}
+                        variant={selectedCategory === category.id.toString() ? 'default' : 'outline'}
+                        size="sm"
+                        onClick={() => setSelectedCategory(category.id.toString())}
+                        className={`rounded-full h-8 px-4 transition-all ${selectedCategory === category.id.toString() ? 'shadow-glow' : ''}`}
+                      >
+                        {category.name}
+                      </Button>
+                    ))}
+                  </div>
+                )}
               </CardHeader>
               <CardContent>
                 {loading ? (
-                  <div className="text-center py-8">
+                  <div className="text-center py-12">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
                     <p className="text-gray-500">Loading products...</p>
                   </div>
-                ) : products.length === 0 ? (
-                  <div className="text-center py-8">
-                    <p className="text-gray-500">No products available</p>
+                ) : filteredProducts.length === 0 ? (
+                  <div className="text-center py-12 bg-gray-50 rounded-xl border-2 border-dashed">
+                    <ShoppingCart className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+                    <p className="text-gray-500 font-medium">No products found</p>
+                    <p className="text-sm text-gray-400">Try selecting a different category</p>
+                    {selectedCategory !== 'all' && (
+                      <Button
+                        variant="link"
+                        onClick={() => setSelectedCategory('all')}
+                        className="mt-2 text-primary"
+                      >
+                        Clear filter
+                      </Button>
+                    )}
                   </div>
                 ) : (
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    {products.map((product) => (
-                      <Card key={product.id} className="cursor-pointer hover:shadow-md transition-shadow">
+                    {filteredProducts.map((product) => (
+                      <Card
+                        key={product.id}
+                        className="group cursor-pointer hover:shadow-lg transition-all border-0 shadow-soft animate-fade-in relative overflow-hidden"
+                        onClick={() => addToCart(product)}
+                      >
+                        <div className="absolute top-0 right-0 p-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <div className="bg-primary/10 text-primary p-1 rounded-full">
+                            <Plus className="w-4 h-4" />
+                          </div>
+                        </div>
                         <CardContent className="p-4">
                           <div className="flex justify-between items-start">
                             <div className="flex-1">
-                              <h3 className="font-semibold text-lg">{product.name}</h3>
-                              <p className="text-sm text-gray-500">{product.category_name || 'No category'}</p>
-                              <p className="text-lg font-bold text-green-600 mt-2">
-                                ₹{parseFloat(product.unit_price).toFixed(2)}
+                              <h3 className="font-bold text-gray-900 group-hover:text-primary transition-colors">{product.name}</h3>
+                              <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider mt-1">
+                                {product.category_name || 'No category'}
                               </p>
+                              <div className="flex items-baseline gap-1 mt-3">
+                                <span className="text-lg font-bold text-gray-900">
+                                  ₹{parseFloat(product.unit_price).toLocaleString('en-IN')}
+                                </span>
+                                <span className="text-xs text-gray-400 font-normal">/ unit</span>
+                              </div>
                             </div>
-                            <Button
-                              size="sm"
-                              onClick={() => addToCart(product)}
-                              className="ml-2"
-                            >
-                              <Plus className="w-4 h-4" />
-                            </Button>
                           </div>
                         </CardContent>
                       </Card>
