@@ -83,7 +83,7 @@ function AppRoutes() {
       <Route
         path="/billing"
         element={
-          <ProtectedRoute>
+          <ProtectedRoute allowedRoles={['staff']}>
             <Billing />
           </ProtectedRoute>
         }

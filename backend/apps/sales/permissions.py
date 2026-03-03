@@ -17,11 +17,11 @@ class IsStaffOrSalesManagerOrAdmin(permissions.BasePermission):
         if request.method in permissions.SAFE_METHODS:
             return request.user and request.user.is_authenticated
         
-        # Only staff, sales_manager, and admin can create sales
+        # Only staff can create sales
         return (
             request.user and
             request.user.is_authenticated and
-            request.user.role in ['staff', 'sales_manager', 'admin']
+            request.user.role == 'staff'
         )
     
     def has_object_permission(self, request, view, obj):

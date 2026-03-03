@@ -65,7 +65,7 @@ const menuItems = [
     title: 'Billing',
     icon: ShoppingCart,
     path: '/billing',
-    roles: ['admin', 'sales_manager', 'staff']
+    roles: ['staff']
   },
   {
     title: 'Sales',
